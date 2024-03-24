@@ -3,11 +3,11 @@ import os
 
 import aws_cdk as cdk
 
-from aws_cdk_python_multi_ec2.aws_cdk_python_multi_ec2_stack import AwsCdkPythonMultiEc2Stack
+from aws_cdk_python_multi_ec2.aws_cdk_python_multi_ec2_stack import Ec2MultiAzStack
 
 
 app = cdk.App()
-AwsCdkPythonMultiEc2Stack(app, "AwsCdkPythonMultiEc2Stack",
+Ec2MultiAzStack(app, "Ec2MultiAzStack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
