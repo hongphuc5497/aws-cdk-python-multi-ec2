@@ -3,26 +3,22 @@ import os
 
 import aws_cdk as cdk
 
-from aws_cdk_python_multi_ec2.aws_cdk_python_multi_ec2_stack import Ec2MultiAzStack
-
+from ec2_multi_region.ec2_multi_region_stack import Ec2MultiRegionStack
 
 app = cdk.App()
-Ec2MultiAzStack(app, "Ec2MultiAzStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+# N.Virginia, Singapore, Frankfurt
+REGIONS = ['us-east-1', 'ap-southeast-1', 'eu-central-1']
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
-
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
-
-    #env=cdk.Environment(account='123456789012', region='us-east-1'),
-
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
+for region in REGIONS:
+    Ec2MultiRegionStack(
+        app,
+        f"Ec2MultiRegionStack-{region}",
+        region=region,
+        env=cdk.Environment(
+            account=os.getenv('CDK_DEFAULT_ACCOUNT'),
+            region=region
+        )
     )
 
 app.synth()
