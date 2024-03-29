@@ -1,9 +1,16 @@
+import os
+from constructs import Construct
+
 from aws_cdk import (
+    CfnOutput,
     Stack,
     aws_ec2 as ec2,
 )
-from constructs import Construct
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+file_path = os.path.join(dir_path, "user_data.sh")
+with open(file_path, "r") as f:
+    user_data = f.read()
 
 class Ec2MultiRegionStack(Stack):
 
@@ -17,17 +24,25 @@ class Ec2MultiRegionStack(Stack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Define VPC
-        custom_vpc = CustomVpc(self, f"Vpc_{region}").vpc
+        # Lookup default VPC
+        default_vpc = ec2.Vpc.from_lookup(
+            self,
+            "VPC",
+            is_default=True,
+        )
 
         # Create Security Group to allow SSH
-        custom_sg_base = CustomSecurityGroup(self, f"SecurityGroup_{region}", custom_vpc)
+        custom_sg_base = CustomSecurityGroup(self, f"SecurityGroup_{region}", default_vpc)
         custom_sg_base.setup_lauch_wizard()
         custom_sg = custom_sg_base.sg
 
         # Create EC2
-        my_instance = CustomEc2(self, f"Ec2_{region}", custom_vpc, custom_sg)
-        my_instance.print_instance_info()
+        my_instance = CustomEc2(self, f"EC2_{region}", default_vpc, custom_sg).instance
+
+        CfnOutput(self,
+            "Output",
+            value=my_instance.instance_public_ip
+        )
 
 
     def __str__(self) -> str:
@@ -67,11 +82,11 @@ class CustomSecurityGroup:
             "Allow HTTP from anywhere"
         )
 
-        self.sg.add_ingress_rule(
-            ec2.Peer.any_ipv4(),
-            ec2.Port.tcp(443),
-            "Allow HTTPS from anywhere"
-        )
+        # self.sg.add_ingress_rule(
+        #     ec2.Peer.any_ipv4(),
+        #     ec2.Port.tcp(443),
+        #     "Allow HTTPS from anywhere"
+        # )
 
 
 class CustomEc2:
@@ -89,6 +104,7 @@ class CustomEc2:
             id,
             vpc=vpc,
             security_group=sg,
+            user_data=ec2.UserData.custom(user_data),
             **self.COMMON_INSTANCE_PROPS
         )
 

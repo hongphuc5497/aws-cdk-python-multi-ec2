@@ -8,7 +8,8 @@ from ec2_multi_region.ec2_multi_region_stack import Ec2MultiRegionStack
 app = cdk.App()
 
 # N.Virginia, Singapore, Frankfurt
-REGIONS = ['us-east-1', 'ap-southeast-1', 'eu-central-1']
+# ['us-east-1', 'ap-southeast-1', 'eu-central-1']
+REGIONS = ['us-east-1', 'ap-southeast-1']
 
 for region in REGIONS:
     Ec2MultiRegionStack(
